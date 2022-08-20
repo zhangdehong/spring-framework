@@ -157,12 +157,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	public void afterPropertiesSet() {
-
 		initHandlerMethods();
 
-		// Total includes detected mappings + explicit registrations via registerMapping..
-		int total = this.getHandlerMethods().size();
-
+		// Total includes detected mappings + explicit registrations via registerMapping
+		int total = getHandlerMethods().size();
 		if ((logger.isTraceEnabled() && total == 0) || (logger.isDebugEnabled() && total > 0) ) {
 			logger.debug(total + " mappings in " + formatMappingName());
 		}
@@ -430,7 +428,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * Provide the mapping for a handler method. A method for which no
 	 * mapping can be provided is not a handler method.
 	 * @param method the method to provide a mapping for
-	 * @param handlerType the handler type, possibly a sub-type of the method's
+	 * @param handlerType the handler type, possibly a subtype of the method's
 	 * declaring class
 	 * @return the mapping, or {@code null} if the method is not mapped
 	 */
@@ -637,10 +635,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		public Match(T mapping, MappingRegistration<T> registration) {
 			this.mapping = mapping;
 			this.registration = registration;
-		}
-
-		public T getMapping() {
-			return this.mapping;
 		}
 
 		public HandlerMethod getHandlerMethod() {

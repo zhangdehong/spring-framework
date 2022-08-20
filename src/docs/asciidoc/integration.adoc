@@ -218,7 +218,7 @@ on the server side (for example, in Spring MVC REST controllers).
 
 Concrete implementations for the main media (MIME) types are provided in the framework
 and are, by default, registered with the `RestTemplate` on the client side and with
-`RequestMethodHandlerAdapter` on the server side (see
+`RequestMappingHandlerAdapter` on the server side (see
 <<web.adoc#mvc-config-message-converters, Configuring Message Converters>>).
 
 The implementations of `HttpMessageConverter` are described in the following sections.
@@ -961,7 +961,7 @@ this application context.
 
 NOTE: The preceding example does not show a flexible kind of security infrastructure. For
 more options as far as security is concerned, have a look at the Spring Security project
-at https://projects.spring.io/spring-security/.
+at https://spring.io/projects/spring-security/.
 
 
 
@@ -1605,16 +1605,25 @@ takes a reference to a standard `ConnectionFactory` that would typically come fr
 ===== Using `CachingConnectionFactory`
 
 The `CachingConnectionFactory` extends the functionality of `SingleConnectionFactory`
-and adds the caching of `Session`, `MessageProducer`, and `MessageConsumer` instances. The initial
-cache size is set to `1`. You can use the `sessionCacheSize` property to increase the number of
-cached sessions. Note that the number of actual cached sessions is more than that
-number, as sessions are cached based on their acknowledgment mode, so there can be up to
-four cached session instances (one for each
-acknowledgment mode) when `sessionCacheSize` is set to one. `MessageProducer` and `MessageConsumer` instances are cached within their
-owning session and also take into account the unique properties of the producers and
-consumers when caching. MessageProducers are cached based on their destination.
-MessageConsumers are cached based on a key composed of the destination, selector,
+and adds the caching of `Session`, `MessageProducer`, and `MessageConsumer` instances.
+The initial cache size is set to `1`. You can use the `sessionCacheSize` property to
+increase the number of cached sessions. Note that the number of actual cached sessions
+is more than that number, as sessions are cached based on their acknowledgment mode,
+so there can be up to four cached session instances (one for each acknowledgment mode)
+when `sessionCacheSize` is set to one. `MessageProducer` and `MessageConsumer` instances
+are cached within their owning session and also take into account the unique properties
+of the producers and consumers when caching. MessageProducers are cached based on their
+destination. MessageConsumers are cached based on a key composed of the destination, selector,
 noLocal delivery flag, and the durable subscription name (if creating durable consumers).
+
+[NOTE]
+====
+MessageProducers and MessageConsumers for temporary queues and topics
+(TemporaryQueue/TemporaryTopic) will never be cached. Unfortunately, WebLogic JMS happens
+to implement the temporary queue/topic interfaces on its regular destination implementation,
+mis-indicating that none of its destinations can be cached. Please use a different connection
+pool/cache on WebLogic, or customize `CachingConnectionFactory` for WebLogic purposes.
+====
 
 
 [[jms-destinations]]
@@ -5396,6 +5405,7 @@ You can use these macros instead of the six-digit value, thus: `@Scheduled(cron 
 |===
 
 
+
 [[scheduling-quartz]]
 === Using the Quartz Scheduler
 
@@ -5451,7 +5461,6 @@ has it applied automatically:
 		protected void executeInternal(JobExecutionContext ctx) throws JobExecutionException {
 			// do the actual work
 		}
-
 	}
 ----
 
@@ -5571,10 +5580,18 @@ seconds and one running every morning at 6 AM. To finalize everything, we need t
 	</bean>
 ----
 
-More properties are available for the `SchedulerFactoryBean`, such as the calendars
-used by the job details, properties to customize Quartz with, and others. See the
-{api-spring-framework}/scheduling/quartz/SchedulerFactoryBean.html[`SchedulerFactoryBean`]
+More properties are available for the `SchedulerFactoryBean`, such as the calendars used by the
+job details, properties to customize Quartz with, and a Spring-provided JDBC DataSource. See
+the {api-spring-framework}/scheduling/quartz/SchedulerFactoryBean.html[`SchedulerFactoryBean`]
 javadoc for more information.
+
+NOTE: `SchedulerFactoryBean` also recognizes a `quartz.properties` file in the classpath,
+based on Quartz property keys, as with regular Quartz configuration. Please note that many
+`SchedulerFactoryBean` settings interact with common Quartz settings in the properties file;
+it is therefore not recommended to specify values at both levels. For example, do not set
+an "org.quartz.jobStore.class" property if you mean to rely on a Spring-provided DataSource,
+or specify an `org.springframework.scheduling.quartz.LocalDataSourceJobStore` variant which
+is a full-fledged replacement for the standard `org.quartz.impl.jdbcjobstore.JobStoreTX`.
 
 
 
@@ -5587,8 +5604,8 @@ an existing Spring application. Similar to the <<data-access.adoc#transaction, t
 support, the caching abstraction allows consistent use of various caching solutions with
 minimal impact on the code.
 
-As from Spring 4.1, the cache abstraction has been significantly extended with the
-support of <<cache-jsr-107,JSR-107 annotations>> and more customization options.
+In Spring Framework 4.1, the cache abstraction was significantly extended with support
+for <<cache-jsr-107,JSR-107 annotations>> and more customization options.
 
 
 
@@ -5877,7 +5894,6 @@ is updated in the cache. The following example shows how to use the `sync` attri
 ----
 <1> Using the `sync` attribute.
 
-
 NOTE: This is an optional feature, and your favorite cache library may not support it.
 All `CacheManager` implementations provided by the core framework support it. See the
 documentation of your cache provider for more details.
@@ -6035,7 +6051,6 @@ all entries from the `books` cache:
 ----
 <1> Using the `allEntries` attribute to evict all entries from the cache.
 
-
 This option comes in handy when an entire cache region needs to be cleared out.
 Rather than evicting each entry (which would take a long time, since it is inefficient),
 all the entries are removed in one operation, as the preceding example shows.
@@ -6093,7 +6108,6 @@ comes into play. The following examples uses `@CacheConfig` to set the name of t
 	}
 ----
 <1> Using `@CacheConfig` to set the name of the cache.
-
 
 `@CacheConfig` is a class-level annotation that allows sharing the cache names,
 the custom `KeyGenerator`, the custom `CacheManager`, and the custom `CacheResolver`.
@@ -6235,13 +6249,11 @@ if you need to annotate non-public methods, as it changes the bytecode itself.
 ****
 
 TIP: Spring recommends that you only annotate concrete classes (and methods of concrete
-classes) with the `@Cache{asterisk}` annotation, as opposed to annotating interfaces.
-You certainly can place the `@Cache{asterisk}` annotation on an interface (or an interface
-method), but this works only as you would expect it to if you use interface-based proxies.
-The fact that Java annotations are not inherited from interfaces means that, if you use
-class-based proxies (`proxy-target-class="true"`) or the weaving-based aspect
-(`mode="aspectj"`), the caching settings are not recognized by the proxying and weaving
-infrastructure, and the object is not wrapped in a caching proxy.
+classes) with the `@Cache{asterisk}` annotations, as opposed to annotating interfaces.
+You certainly can place an `@Cache{asterisk}` annotation on an interface (or an interface
+method), but this works only if you use the proxy mode (`mode="proxy"`). If you use the
+weaving-based aspect (`mode="aspectj"`), the caching settings are not recognized on
+interface-level declarations by the weaving infrastructure.
 
 NOTE: In proxy mode (the default), only external method calls coming in through the
 proxy are intercepted. This means that self-invocation (in effect, a method within the
@@ -6313,7 +6325,7 @@ up its declaration at runtime and understands its meaning. Note that, as mention
 === JCache (JSR-107) Annotations
 
 Since version 4.1, Spring's caching abstraction fully supports the JCache standard
-annotations: `@CacheResult`, `@CachePut`, `@CacheRemove`, and `@CacheRemoveAll`
+(JSR-107) annotations: `@CacheResult`, `@CachePut`, `@CacheRemove`, and `@CacheRemoveAll`
 as well as the `@CacheDefaults`, `@CacheKey`, and `@CacheValue` companions.
 You can use these annotations even without migrating your cache store to JSR-107.
 The internal implementation uses Spring's caching abstraction and provides default
@@ -6327,8 +6339,8 @@ you can switch to these standard annotations without changing your cache storage
 ==== Feature Summary
 
 For those who are familiar with Spring's caching annotations, the following table
-describes the main differences between the Spring annotations and the JSR-107
-counterpart:
+describes the main differences between the Spring annotations and their JSR-107
+counterparts:
 
 .Spring vs. JSR-107 caching annotations
 [cols="1,1,3"]
@@ -6378,7 +6390,6 @@ to customize the factory for each cache operation, as the following example show
 ----
 <1> Customizing the factory for this operation.
 
-
 NOTE: For all referenced classes, Spring tries to locate a bean with the given type.
 If more than one match exists, a new instance is created and can use the regular
 bean lifecycle callbacks, such as dependency injection.
@@ -6420,16 +6431,15 @@ invoking the method again:
 
 ==== Enabling JSR-107 Support
 
-You need do nothing specific to enable the JSR-107 support alongside Spring's
-declarative annotation support. Both `@EnableCaching` and the
-`cache:annotation-driven` element automatically enable the JCache support
-if both the JSR-107 API and the `spring-context-support` module are present
-in the classpath.
+You do not need to do anything specific to enable the JSR-107 support alongside Spring's
+declarative annotation support. Both `@EnableCaching` and the `cache:annotation-driven`
+XML element automatically enable the JCache support if both the JSR-107 API and the
+`spring-context-support` module are present in the classpath.
 
-NOTE: Depending on your use case, the choice is basically yours. You can even
-mix and match services by using the JSR-107 API on some and using Spring's own
-annotations on others. However, if these services impact the same caches,
-you should use a consistent and identical key generation implementation.
+NOTE: Depending on your use case, the choice is basically yours. You can even mix and
+match services by using the JSR-107 API on some and using Spring's own annotations on
+others. However, if these services impact the same caches, you should use a consistent
+and identical key generation implementation.
 
 
 
@@ -6572,7 +6582,7 @@ are made available by the manager. The following example shows how to do so:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 	<bean id="cacheManager" class="org.springframework.cache.caffeine.CaffeineCacheManager">
-		<property name="caches">
+		<property name="cacheNames">
 			<set>
 				<value>default</value>
 				<value>books</value>
@@ -6653,15 +6663,13 @@ invoked every time.
 === Plugging-in Different Back-end Caches
 
 Clearly, there are plenty of caching products out there that you can use as a backing
-store. To plug them in, you need to provide a `CacheManager` and a `Cache` implementation,
-since, unfortunately, there is no available standard that we can use instead.
-This may sound harder than it is, since, in practice, the classes tend to be simple
-https://en.wikipedia.org/wiki/Adapter_pattern[adapters] that map the caching abstraction
-framework on top of the storage API, as the `ehcache` classes do. Most `CacheManager`
-classes can use the classes in the `org.springframework.cache.support` package
-(such as `AbstractCacheManager` which takes care of the boiler-plate code,
-leaving only the actual mapping to be completed). We hope that, in time, the libraries
-that provide integration with Spring can fill in this small configuration gap.
+store. For those that do not support JSR-107 you need to provide a `CacheManager` and a
+`Cache` implementation. This may sound harder than it is, since, in practice, the classes
+tend to be simple https://en.wikipedia.org/wiki/Adapter_pattern[adapters] that map the
+caching abstraction framework on top of the storage API, as the `ehcache` classes do.
+Most `CacheManager` classes can use the classes in the
+`org.springframework.cache.support` package (such as `AbstractCacheManager` which takes
+care of the boiler-plate code, leaving only the actual mapping to be completed).
 
 
 

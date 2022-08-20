@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,10 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.expression.spel.testdata.PersonInOtherPackage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.within;
+import static org.assertj.core.api.InstanceOfAssertFactories.BOOLEAN;
 
 /**
  * Checks SpelCompiler behavior. This should cover compilation all compiled node types.
@@ -198,9 +200,9 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 	@Test
 	void operatorInstanceOf() {
 		expression = parse("'xyz' instanceof T(String)");
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 
 		expression = parse("'xyz' instanceof T(Integer)");
 		assertThat(expression.getValue()).isEqualTo(false);
@@ -209,21 +211,21 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
 		List<String> list = new ArrayList<>();
 		expression = parse("#root instanceof T(java.util.List)");
-		assertThat(expression.getValue(list)).isEqualTo(true);
+		assertThat(expression.getValue(list)).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue(list)).isEqualTo(true);
+		assertThat(expression.getValue(list)).asInstanceOf(BOOLEAN).isTrue();
 
 		List<String>[] arrayOfLists = new List[] {new ArrayList<String>()};
 		expression = parse("#root instanceof T(java.util.List[])");
-		assertThat(expression.getValue(arrayOfLists)).isEqualTo(true);
+		assertThat(expression.getValue(arrayOfLists)).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue(arrayOfLists)).isEqualTo(true);
+		assertThat(expression.getValue(arrayOfLists)).asInstanceOf(BOOLEAN).isTrue();
 
 		int[] intArray = new int[] {1,2,3};
 		expression = parse("#root instanceof T(int[])");
-		assertThat(expression.getValue(intArray)).isEqualTo(true);
+		assertThat(expression.getValue(intArray)).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue(intArray)).isEqualTo(true);
+		assertThat(expression.getValue(intArray)).asInstanceOf(BOOLEAN).isTrue();
 
 		String root = null;
 		expression = parse("#root instanceof T(Integer)");
@@ -239,18 +241,18 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
 		root = "howdy!";
 		expression = parse("#root instanceof T(java.lang.Object)");
-		assertThat(expression.getValue(root)).isEqualTo(true);
+		assertThat(expression.getValue(root)).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue(root)).isEqualTo(true);
+		assertThat(expression.getValue(root)).asInstanceOf(BOOLEAN).isTrue();
 	}
 
 	@Test
 	void operatorInstanceOf_SPR14250() throws Exception {
 		// primitive left operand - should get boxed, return true
 		expression = parse("3 instanceof T(Integer)");
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 
 		// primitive left operand - should get boxed, return false
 		expression = parse("3 instanceof T(String)");
@@ -266,11 +268,11 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
 		// double slot left operand - should get boxed, return true
 		expression = parse("3.0d instanceof T(Double)");
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 
-		// Only when the right hand operand is a direct type reference
+		// Only when the right-hand operand is a direct type reference
 		// will it be compilable.
 		StandardEvaluationContext ctx = new StandardEvaluationContext();
 		ctx.setVariable("foo", String.class);
@@ -646,9 +648,9 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 		assertThat(expression.getValue()).isEqualTo(false);
 
 		expression = parse("!false");
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue()).isEqualTo(true);
+		assertThat(expression.getValue()).asInstanceOf(BOOLEAN).isTrue();
 
 		boolean b = true;
 		expression = parse("!#root");
@@ -658,9 +660,9 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
 		b = false;
 		expression = parse("!#root");
-		assertThat(expression.getValue(b)).isEqualTo(true);
+		assertThat(expression.getValue(b)).asInstanceOf(BOOLEAN).isTrue();
 		assertCanCompile(expression);
-		assertThat(expression.getValue(b)).isEqualTo(true);
+		assertThat(expression.getValue(b)).asInstanceOf(BOOLEAN).isTrue();
 	}
 
 	@Test
@@ -1251,8 +1253,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 		ctx.setVariable("target", "123");
 		assertThat(expression.getValue(ctx)).isEqualTo("123");
 		ctx.setVariable("target", 42);
-		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-				expression.getValue(ctx))
+		assertThatExceptionOfType(SpelEvaluationException.class)
+			.isThrownBy(() -> expression.getValue(ctx))
 			.withCauseInstanceOf(ClassCastException.class);
 
 		ctx.setVariable("target", "abc");
@@ -1263,8 +1265,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 		ctx.setVariable("target", "1");
 		assertThat(expression.getValue(ctx)).isEqualTo('1');
 		ctx.setVariable("target", 42);
-		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-				expression.getValue(ctx))
+		assertThatExceptionOfType(SpelEvaluationException.class)
+			.isThrownBy(() -> expression.getValue(ctx))
 			.withCauseInstanceOf(ClassCastException.class);
 	}
 
@@ -3997,8 +3999,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 		assertThat(expression.getValue(is)).isEqualTo(2);
 		assertCanCompile(expression);
 		assertThat(expression.getValue(is)).isEqualTo(2);
-		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-				expression.getValue(strings))
+		assertThatExceptionOfType(SpelEvaluationException.class)
+			.isThrownBy(() -> expression.getValue(strings))
 			.withCauseInstanceOf(ClassCastException.class);
 		SpelCompiler.revertToInterpreted(expression);
 		assertThat(expression.getValue(strings)).isEqualTo("b");
@@ -4025,8 +4027,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 		assertCanCompile(expression);
 		tc.reset();
 		tc.obj=42;
-		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-				expression.getValue(tc))
+		assertThatExceptionOfType(SpelEvaluationException.class)
+			.isThrownBy(() -> expression.getValue(tc))
 			.withCauseInstanceOf(ClassCastException.class);
 
 
@@ -4034,8 +4036,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 		expression = parser.parseExpression("#root.charAt(0)");
 		assertThat(expression.getValue("abc")).isEqualTo('a');
 		assertCanCompile(expression);
-		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-				expression.getValue(42))
+		assertThatExceptionOfType(SpelEvaluationException.class)
+			.isThrownBy(() -> expression.getValue(42))
 			.withCauseInstanceOf(ClassCastException.class);
 	}
 
@@ -4153,7 +4155,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 	void propertyReference() {
 		TestClass6 tc = new TestClass6();
 
-		// non static field
+		// non-static field
 		expression = parser.parseExpression("orange");
 		assertCantCompile(expression);
 		assertThat(expression.getValue(tc)).isEqualTo("value1");
@@ -5147,7 +5149,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 	}
 
 	private void assertGetValueFail(Expression expression) {
-		assertThatExceptionOfType(Exception.class).isThrownBy(expression::getValue);
+		assertThatException().isThrownBy(expression::getValue);
 	}
 
 	public static void assertIsCompiled(Expression expression) {

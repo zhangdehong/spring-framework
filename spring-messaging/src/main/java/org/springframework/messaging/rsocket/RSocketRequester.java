@@ -91,7 +91,7 @@ public interface RSocketRequester extends Disposable {
 	 * If a formatted variable contains a "." it is replaced with the escape
 	 * sequence "%2E" to avoid treating it as separator by the responder .
 	 * <p>If the connection is set to use composite metadata, the route is
-	 * encoded as {@code "message/x.rsocket.routing.v0"}. Otherwise the route
+	 * encoded as {@code "message/x.rsocket.routing.v0"}. Otherwise, the route
 	 * is encoded according to the mime type for the connection.
 	 * @param route the route expressing a remote handler mapping
 	 * @param routeVars variables to be expanded into the route template
@@ -105,7 +105,7 @@ public interface RSocketRequester extends Disposable {
 	 * to a {@link Publisher} via {@link ReactiveAdapterRegistry}.
 	 * @param metadata the metadata value to encode
 	 * @param mimeType the mime type that describes the metadata;
-	 * This is required for connection using composite metadata. Otherwise the
+	 * This is required for connection using composite metadata. Otherwise, the
 	 * value is encoded according to the mime type for the connection and this
 	 * argument may be left as {@code null}.
 	 */
@@ -305,8 +305,8 @@ public interface RSocketRequester extends Disposable {
 		 * @param host the server host
 		 * @param port the server port
 		 * @return an {@code RSocketRequester} for the connection
-		 * @deprecated as of 5.3 in favor of {@link #tcp(String, int)}
 		 * @see TcpClientTransport
+		 * @deprecated as of 5.3 in favor of {@link #tcp(String, int)}
 		 */
 		@Deprecated
 		Mono<RSocketRequester> connectTcp(String host, int port);
@@ -315,8 +315,8 @@ public interface RSocketRequester extends Disposable {
 		 * Connect to the server over WebSocket.
 		 * @param uri the RSocket server endpoint URI
 		 * @return an {@code RSocketRequester} for the connection
-		 * @deprecated as of 5.3 in favor of {@link #websocket(URI)}
 		 * @see WebsocketClientTransport
+		 * @deprecated as of 5.3 in favor of {@link #websocket(URI)}
 		 */
 		@Deprecated
 		Mono<RSocketRequester> connectWebSocket(URI uri);
@@ -434,7 +434,7 @@ public interface RSocketRequester extends Disposable {
 		 * <p>If the return type is {@code Mono<Void>}, the {@code Mono} will
 		 * complete after all data is consumed.
 		 * <p><strong>Note:</strong> This method will raise an error if
-		 * the request payload is a multi-valued {@link Publisher} as there is
+		 * the request payload is a multivalued {@link Publisher} as there is
 		 * no many-to-one RSocket interaction.
 		 * @param dataType the expected data type for the response
 		 * @param <T> parameter for the expected data type

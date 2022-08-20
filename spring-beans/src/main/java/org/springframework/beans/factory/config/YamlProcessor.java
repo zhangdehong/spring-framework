@@ -86,7 +86,7 @@ public abstract class YamlProcessor {
 	 * </pre>
 	 * when mapped with
 	 * <pre class="code">
-	 * setDocumentMatchers(properties ->
+	 * setDocumentMatchers(properties -&gt;
 	 *     ("prod".equals(properties.getProperty("environment")) ? MatchStatus.FOUND : MatchStatus.NOT_FOUND));
 	 * </pre>
 	 * would end up as
@@ -155,7 +155,7 @@ public abstract class YamlProcessor {
 	 * resources. Each resource is parsed in turn and the documents inside checked against
 	 * the {@link #setDocumentMatchers(DocumentMatcher...) matchers}. If a document
 	 * matches it is passed into the callback, along with its representation as Properties.
-	 * Depending on the {@link #setResolutionMethod(ResolutionMethod)} not all of the
+	 * Depending on the {@link #setResolutionMethod(ResolutionMethod)} not all the
 	 * documents will be parsed.
 	 * @param callback a callback to delegate to once matching documents are found
 	 * @see #createYaml()

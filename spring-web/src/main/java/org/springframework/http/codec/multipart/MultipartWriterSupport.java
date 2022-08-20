@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.http.codec.multipart;
 
 import java.nio.charset.Charset;
@@ -106,7 +107,7 @@ public class MultipartWriterSupport extends LoggingCodecSupport {
 
 	/**
 	 * Prepare the {@code MediaType} to use by adding "boundary" and "charset"
-	 * parameters to the given {@code mediaType} or "mulitpart/form-data"
+	 * parameters to the given {@code mediaType} or "multipart/form-data"
 	 * otherwise by default.
 	 */
 	protected MediaType getMultipartMediaType(@Nullable MediaType mediaType, byte[] boundary) {

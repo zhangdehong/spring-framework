@@ -126,7 +126,7 @@ import org.springframework.web.util.UriUtils;
  * <td>false</td>
  * <td>true</td>
  * <td>Set JavaScript escaping for this tag, as a boolean value.
- * Default is false.</td>
+ * Default is {@code false}.</td>
  * </tr>
  * </tbody>
  * </table>
@@ -313,7 +313,7 @@ public class UrlTag extends HtmlEscapingAwareTag implements ParamAware {
 	 * @param usedParams set of parameter names that have been applied as
 	 * template params
 	 * @param includeQueryStringDelimiter true if the query string should start
-	 * with a '?' instead of '&'
+	 * with a '?' instead of '&amp;'
 	 * @return the query string
 	 */
 	protected String createQueryString(List<Param> params, Set<String> usedParams, boolean includeQueryStringDelimiter)

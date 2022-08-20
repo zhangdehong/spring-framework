@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.http.server.reactive;
 
 import java.util.function.Supplier;
@@ -31,7 +32,7 @@ import org.springframework.util.MultiValueMap;
 
 /**
  * Wraps another {@link ServerHttpResponse} and delegates all methods to it.
- * Sub-classes can override specific methods selectively.
+ * Subclasses can override specific methods selectively.
  *
  * @author Rossen Stoyanchev
  * @since 5.0
@@ -62,6 +63,16 @@ public class ServerHttpResponseDecorator implements ServerHttpResponse {
 	@Override
 	public HttpStatus getStatusCode() {
 		return getDelegate().getStatusCode();
+	}
+
+	@Override
+	public boolean setRawStatusCode(@Nullable Integer value) {
+		return getDelegate().setRawStatusCode(value);
+	}
+
+	@Override
+	public Integer getRawStatusCode() {
+		return getDelegate().getRawStatusCode();
 	}
 
 	@Override
