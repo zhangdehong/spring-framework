@@ -262,6 +262,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	}
 
 	/**
+	 *
+	 * - 首先构造一个ClassPathBeanDefinitionScanner对象，需要传递一个BeanDefinitionRegistry对象。
+	 * - 根据配置文件配置属性设置scanner的扫描属性，比如”resource-pattern”, “name-generator”, “scope-resolver”等。
+	 * - 调用scanner.doScan(String… basePackages)方法完成候选类的自动扫描。
+	 *
 	 * Perform a scan within the specified base packages,
 	 * returning the registered bean definitions.
 	 * <p>This method does <i>not</i> register an annotation config processor
