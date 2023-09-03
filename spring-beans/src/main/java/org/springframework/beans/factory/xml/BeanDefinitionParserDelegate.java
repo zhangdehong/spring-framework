@@ -417,7 +417,7 @@ public class BeanDefinitionParserDelegate {
         String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
         List<String> aliases = new ArrayList<>();
-        // 如果有长度
+        // 如果有长度 解析别名封装到list集合
         if (StringUtils.hasLength(nameAttr)) {
             String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
             aliases.addAll(Arrays.asList(nameArr));
@@ -523,7 +523,9 @@ public class BeanDefinitionParserDelegate {
             parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
             parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
 
+            // 解析构造函数元素
             parseConstructorArgElements(ele, bd);
+            // 解析处理property标签
             parsePropertyElements(ele, bd);
             parseQualifierElements(ele, bd);
 
